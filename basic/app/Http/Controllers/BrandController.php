@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Brand;
 use Illuminate\Support\Carbon;
+use Image;
 
 class BrandController extends Controller{
   public function AllBrand(){
@@ -29,7 +30,11 @@ class BrandController extends Controller{
       $img_name = $name_gen.'.'.$img_ext;
       $up_location = 'image/brand/';
       $last_img = $up_location.$img_name;
-      $brand_image->move($up_location,$img_name);
+      //$brand_image->move($up_location,$img_name);
+
+      //using intervention package
+      Image::make($brand_image)->resize(300,200)->save($last_img);
+
 
       Brand::insert([
         'brand_name'=>$request->brand_name,
