@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Brand;
+use App\Models\Multipic;
 use Illuminate\Support\Carbon;
 use Image;
 
 class BrandController extends Controller{
+
   public function AllBrand(){
     $brands = Brand::latest()->paginate(5);
     return view('admin.brand.index', compact('brands'));
@@ -34,7 +36,6 @@ class BrandController extends Controller{
 
       //using intervention package
       Image::make($brand_image)->resize(300,200)->save($last_img);
-
 
       Brand::insert([
         'brand_name'=>$request->brand_name,
@@ -92,5 +93,36 @@ class BrandController extends Controller{
 
     Brand::find($id)->delete();
     return Redirect()->back()->with('success','Brand Delete Successfully');
+  }
+
+  //Multi Image methods
+
+  public function Multpic(){
+    $images = Multipic::all();
+    return view('admin.multipic.index',compact('images'));
+  }
+
+  public function StoreImg(Request $request){
+
+   $multi_img = $request->file('multi_img');
+
+   foreach($multi_img as $img){
+      $name_gen = hexdec(uniqid());
+      $img_ext = strtolower($img->getClientOriginalExtension());
+      $img_name = $name_gen.'.'.$img_ext;
+      $up_location = 'image/multi/';
+      $last_img = $up_location.$img_name;
+      //$brand_image->move($up_location,$img_name);
+
+      //using intervention package to save in public folder
+      Image::make($img)->resize(300,300)->save($last_img);
+
+      Multipic::insert([
+        'image'=>$last_img,
+        'created_at'=>Carbon::now()
+      ]);
+  }
+
+    return Redirect()->back()->with('success','Multi Images Inserted Successfully');
   }
 }
